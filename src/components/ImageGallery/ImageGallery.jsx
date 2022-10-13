@@ -21,11 +21,11 @@ export default class ImageGallery extends Component {
       loading:true,
     })
 
-    axios.get(`https://pixabay.com/api/?key=29403206-b29e9098c0ff3e75ea37bca5c&image_type=photo&order=popular&page=${page}&per_page=20`)
+    axios.get(`https://pixabay.com/api/?q=cat&page=${page}&key=29403206-b29e9098c0ff3e75ea37bca5c&image_type=photo&orientation=horizontal&per_page=20`)
       .then(({ data }) => {
         this.setState(({ items }) => {
           return {
-            items: { ...items, ...data }
+            items: { ...items.hits, ...data }
           }
       })
       }).catch(error => {
@@ -45,7 +45,7 @@ export default class ImageGallery extends Component {
 
   render() {
     const { items,loading, error } = this.state;
-    const isPosts = Boolean(items.length);
+    // const isPosts = Boolean(items.length);
     // const { loadMore } = this;
 
     return (
@@ -53,7 +53,7 @@ export default class ImageGallery extends Component {
         <h2>ImageGallery</h2>
         {loading && <Loader />}
         {error && <p>Будь ласка спробуй пізніше...</p>}
-        {isPosts && <ImageGalleryItem items={items} />}
+        <ImageGalleryItem items={items} />
         {/* {isPosts && <button onClick={loadMore}>Load more</button> } */}
       </div>
     )
