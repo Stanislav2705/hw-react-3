@@ -1,60 +1,90 @@
 import { Component } from 'react'
-import axios from 'axios';
+import { fetchImages } from 'shared/api';
+import { Notify } from 'notiflix';
+import styles from './button.module.scss'
 import Loader from 'shared/components/Loader/Loader';
+import SearchBar from 'components/SearchBar/SearchBar';
 import ImageGalleryItem from 'shared/components/ImageGalleryItem/ImageGalleryItem';
 
 export default class ImageGallery extends Component {
   state = {
-    items: [],
+    images: [],
+    imageName: '',
     loading: false,
-    error: null,
     page: 1,
+    totalPages: null,
   }
 
   componentDidMount() {
-    this.fetchImageGallery();
+    this.fetchPosts();
   }
 
-  fetchImageGallery() {
-    const { page } = this.state;
+  componentDidUpdate(_, prevState) {
+    const { page, imageName } = this.state;
+    if (
+      (prevState.imageName !== imageName) ||
+      (prevState.page !== page )
+    ) {
+      this.fetchPosts(imageName, page)
+    }
+  }
+
+   async fetchPosts() {
+    const { page, imageName } = this.state;
     this.setState({
-      loading:true,
+      loading: true,
+    });
+
+    try {
+      const data = await fetchImages(imageName, page);
+      if (data.totalHits === 0) {
+        return Notify.failure('No such pictures');
+      }
+      this.setState(({ images }) => {
+        return {
+          images: [...images, ...data.hits],
+        };
+      });
+      const totalPages = Math.ceil(data.totalHits / 15);
+      this.setState({
+        totalPages,
+      });
+      if (page >= totalPages) {
+        Notify.warning(
+          "We're sorry, but you've reached the end of search results."
+        );
+      }
+    } finally {
+      this.setState({
+        loading: false,
+      });
+    }
+   }
+
+   handleSubmitForm = ({ imageName }) => {
+    this.setState({ imageName, images: [] });
+  };
+
+
+  loadMore = () => {
+    this.setState(({ page }) => {
+      return {
+        page: page + 1
+      }
     })
-
-    axios.get(`https://pixabay.com/api/?key=29403206-b29e9098c0ff3e75ea37bca5c&image_type=photo&orientation=horizontal&page=${page}&per_page=12`)
-      .then(({ data }) => {
-        this.setState(({ items }) => {
-          return {
-            items: { ...items, ...data.hits }
-          }
-      })
-      }).catch(error => {
-        this.setState({
-        error
-      })
-    }).finally(() => this.setState({loading: false}))
   }
-
-  // loadMore = () => {
-  //   this.setState(({ page }) => {
-  //     return {
-  //       page: page + 1
-  //     }
-  //   })
-  // }
 
   render() {
-    const { loading, error,items } = this.state;
-    const isPosts = Boolean(items.length);
-    // const { loadMore } = this;
+    const { loading,images } = this.state;
+    const isImages  = Boolean(images.length);
+    const { loadMore,handleSubmitForm } = this;
 
     return (
-      <div>
-        <h2>ImageGallery</h2>
+      <div className={styles.container}>
+        <SearchBar onSubmit={handleSubmitForm} />
         {loading && <Loader />}
-        {error && <p>Будь ласка спробуй пізніше...</p>}
-        {isPosts && <ImageGalleryItem items={items} />}
-        {/* {isPosts && <button onClick={loadMore}>Load more</button> } */}
+        {isImages && <ImageGalleryItem items={images} />}
+        {isImages && <button onClick={loadMore} className={styles.button}>Load more</button> }
       </div>
     )
   }

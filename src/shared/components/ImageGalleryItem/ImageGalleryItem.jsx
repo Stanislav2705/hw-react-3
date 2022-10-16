@@ -1,26 +1,20 @@
+import React from "react"
+import GallaryItem from 'shared/components/GallaryItem/GalleryItem'
 import styles from "./image-galleryItems.module.scss"
-
-const ImageGalleryItem = ({ items, onClick }) => {
-  const elements = items.map(({ id, webformatURL, tags}) =>
-    <li
-      key={id}
-      onClick={() => onClick({ id })}
-      className={styles.item}
-    >
-      <img
-        src={webformatURL}
-        alt={tags}
-        className={styles.itemimage}
-      />
-    </li>)
-
-  return (<ul>{elements}</ul>)
+// import PropTypes from 'prop-types';
 
 
+export default function ImageGalleryItem({ items }) {
+  return (
+    <ul className={styles.gallery}>
+      {items.map(item => {
+        return <GallaryItem key={item.id} {...item}/>
+      })}
+    </ul>
+  )
 }
 
-export default ImageGalleryItem;
 
-ImageGalleryItem.defaultProps = {
-    items: []
-}
+// ImageGalleryItem.PropTypes = {
+//   items: PropTypes.array.isRequired,
+// }
