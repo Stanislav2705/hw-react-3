@@ -14,7 +14,7 @@ export default class SearchBar extends Component {
   }
 
   handleSubmit = e => {
-    e.perventDefault();
+    e.preventDefault();
     if (this.state.imageName.trim() === '') {
       return Notify.info('Enter image name');
     }

@@ -1,7 +1,8 @@
 import { Component } from 'react'
 import { fetchImages } from 'shared/api';
 import { Notify } from 'notiflix';
-import styles from './button.module.scss'
+import styles from './imagegallery.module.scss'
+import Button from 'shared/components/Button/Button';
 import Loader from 'shared/components/Loader/Loader';
 import SearchBar from 'components/SearchBar/SearchBar';
 import ImageGalleryItem from 'shared/components/ImageGalleryItem/ImageGalleryItem';
@@ -15,15 +16,11 @@ export default class ImageGallery extends Component {
     totalPages: null,
   }
 
-  componentDidMount() {
-    this.fetchPosts();
-  }
-
   componentDidUpdate(_, prevState) {
     const { page, imageName } = this.state;
     if (
-      (prevState.imageName !== imageName) ||
-      (prevState.page !== page )
+      (imageName && prevState.imageName !== imageName) ||
+      page > prevState.page
     ) {
       this.fetchPosts(imageName, page)
     }
@@ -45,7 +42,7 @@ export default class ImageGallery extends Component {
           images: [...images, ...data.hits],
         };
       });
-      const totalPages = Math.ceil(data.totalHits / 15);
+      const totalPages = Math.ceil(data.totalHits / 20);
       this.setState({
         totalPages,
       });
@@ -75,16 +72,18 @@ export default class ImageGallery extends Component {
   }
 
   render() {
-    const { loading,images } = this.state;
-    const isImages  = Boolean(images.length);
+    const { loading, images, page, totalPages } = this.state;
     const { loadMore,handleSubmitForm } = this;
+    const isImages = images.length !== 0;
+    const lastImage = page < totalPages;
 
     return (
       <div className={styles.container}>
         <SearchBar onSubmit={handleSubmitForm} />
-        {loading && <Loader />}
-        {isImages && <ImageGalleryItem items={images} />}
-        {isImages && <button onClick={loadMore} className={styles.button}>Load more</button> }
+        <ImageGalleryItem items={images}/>
+        {loading ? (<Loader />) :
+        (lastImage && isImages && <Button onClick={loadMore} /> )}
+
       </div>
     )
   }

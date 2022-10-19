@@ -1,7 +1,7 @@
 import React from "react"
 import GallaryItem from 'shared/components/GallaryItem/GalleryItem'
 import styles from "./image-galleryItems.module.scss"
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 
 
 export default function ImageGalleryItem({ items }) {
@@ -15,6 +15,6 @@ export default function ImageGalleryItem({ items }) {
 }
 
 
-// ImageGalleryItem.PropTypes = {
-//   items: PropTypes.array.isRequired,
-// }
+ImageGalleryItem.propTypes = {
+  items: PropTypes.array.isRequired,
+}

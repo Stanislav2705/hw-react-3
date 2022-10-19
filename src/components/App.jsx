@@ -4,9 +4,9 @@ import ImageGallery from './ImageGallery/ImageGallery'
 export default class App extends Component {
   render() {
     return (
-      <div>
+      <>
         <ImageGallery/>
-      </div>
+      </>
     )
   }
 }
